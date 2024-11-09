@@ -442,4 +442,68 @@ bool operator==(const BitArray &a, const BitArray &b)
 
 bool operator!=(const BitArray &a, const BitArray &b)
 {
+    return !(a == b);
+}
+
+BitArray operator&(const BitArray &b1, const BitArray &b2)
+{
+
+    if (b1.size() != b2.size())
+    {
+        throw std::invalid_argument("Array lengths must be equal to!\n");
+    }
+    else
+    {
+        BitArray result(b1);
+
+        for (int i = 0; i < result.size(); ++i)
+        {
+            bool value = result[i] && b2[i];
+            result.set(i, value);
+        }
+
+        return result;
+    }
+}
+
+BitArray operator|(const BitArray &b1, const BitArray &b2)
+{
+
+    if (b1.size() != b2.size())
+    {
+        throw std::invalid_argument("Array lengths must be equal to!\n");
+    }
+    else
+    {
+        BitArray result(b1);
+
+        for (int i = 0; i < result.size(); ++i)
+        {
+            bool value = result[i] || b2[i];
+            result.set(i, value);
+        }
+
+        return result;
+    }
+}
+
+BitArray operator^(const BitArray &b1, const BitArray &b2)
+{
+
+    if (b1.size() != b2.size())
+    {
+        throw std::invalid_argument("Array lengths must be equal to!\n");
+    }
+    else
+    {
+        BitArray result(b1);
+
+        for (int i = 0; i < result.size(); ++i)
+        {
+            bool value = result[i] ^ b2[i];
+            result.set(i, value);
+        }
+
+        return result;
+    }
 }

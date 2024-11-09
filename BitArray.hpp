@@ -50,7 +50,8 @@ public:
     // Заполняет массив истиной.
     BitArray &set();
     // Устанавливает бит с индексом n в значение false.
-    BitArray &reset(int n); // Заполняет массив ложью.
+    BitArray &reset(int n);
+    // Заполняет массив ложью.
     BitArray &reset();
     // true, если массив содержит истинный бит.
     bool any() const;
@@ -67,6 +68,7 @@ public:
     // Возвращает строковое представление массива.
     std::string to_string() const;
 };
+
 bool operator==(const BitArray &a, const BitArray &b);
 bool operator!=(const BitArray &a, const BitArray &b);
 BitArray operator&(const BitArray &b1, const BitArray &b2);

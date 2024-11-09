@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/BitArrayTest.dir/BitArrayTest.cpp.o -o BitArrayTest  ../lib/libgtest_main.a ../libBitArrayLib.a ../lib/libgtest.a 

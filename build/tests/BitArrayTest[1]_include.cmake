@@ -1,0 +1,5 @@
+if(EXISTS "/home/artem/Documents/2 course/Object-Oriented Programming/ex1/build/tests/BitArrayTest[1]_tests.cmake")
+  include("/home/artem/Documents/2 course/Object-Oriented Programming/ex1/build/tests/BitArrayTest[1]_tests.cmake")
+else()
+  add_test(BitArrayTest_NOT_BUILT BitArrayTest_NOT_BUILT)
+endif()
