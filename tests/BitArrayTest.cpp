@@ -42,7 +42,7 @@ TEST(ConstructorTest, ZeroInitialization)
     EXPECT_TRUE(b.empty());
 }
 
-TEST(FirstMethodsTest, Testing)
+TEST(MethodsTest, FirstTesting)
 {
     BitArray a(9, 0xA500000000000000); // 0b101001010
     BitArray b(5, 0xA800000000000000); // 0b10101
@@ -103,7 +103,7 @@ TEST(FirstMethodsTest, Testing)
     EXPECT_EQ(b[10], 0);
 }
 
-TEST(OperatorsTest, BitArrayOperators)
+TEST(OperatorsTest, Shifts_AND_XOR_OR)
 {
     BitArray a(5, 0xA800000000000000); // 0b10101
     BitArray b(5, 0x7800000000000000); // 0b01111
@@ -147,7 +147,7 @@ TEST(OperatorsTest, BitArrayOperators)
     EXPECT_EQ(d.to_string(), "0101011111111111111111111111111111111111111111111111111111111111111111");
 }
 
-TEST(SecondMethodsTest, Testing)
+TEST(MethodsTest, SecondTesting)
 {
     BitArray a(9, 0xA500000000000000); // 0b101001010
     BitArray b(5, 0xA800000000000000); // 0b10101
