@@ -1,237 +1,170 @@
 #include "BitArray.hpp"
 #include <gtest/gtest.h>
 
-TEST(BitArrayConstructorTest, BasicInitialization)
+TEST(ConstructorTest, initialization)
 {
-    BitArray b(64, 0b1010);
-    EXPECT_EQ(b.size(), 64);
-    EXPECT_TRUE(b[60]);
-    EXPECT_FALSE(b[61]);
-    EXPECT_TRUE(b[62]);
-    EXPECT_FALSE(b[63]);
+    BitArray a(70, ALL_ONE);
+    BitArray b(5, 0xAC00000000000000);
+    // 1010110000000000000000000000000000000000000000000000000000000000
+
+    EXPECT_EQ(a.size(), 70);
+    EXPECT_EQ(b.size(), 5);
+
+    EXPECT_TRUE(a[60]);
+    EXPECT_TRUE(a[0]);
+    EXPECT_FALSE(a[64]);
+
+    EXPECT_FALSE(b[1]);
+    EXPECT_TRUE(b[0]);
+    try
+    {
+        EXPECT_EQ(a[70], 0);
+    }
+    catch (const std::range_error &e)
+    {
+        std::cerr << e.what();
+    }
+
+    BitArray c(a);
+    EXPECT_EQ(c.size(), 70);
+    EXPECT_EQ(c[63], 1);
 }
 
-TEST(BitArrayConstructorTest, NegativeInitialization)
+TEST(ConstructorTest, NegativeInitialization)
 {
     EXPECT_THROW(BitArray b(-5), std::invalid_argument);
 }
 
-TEST(BitArrayConstructorTest, ZeroInitialization)
-{
-    BitArray b(0);
-    EXPECT_EQ(b.size(), 0);
-    EXPECT_TRUE(b.empty());
-}
-
-TEST(BitArraySetTest, BasicSetFunction)
-{
-    BitArray b(16);
-    b.set(0, true);
-    b.set(1, true);
-    EXPECT_TRUE(b[0]);
-    EXPECT_TRUE(b[1]);
-}
-
-TEST(BitArraySetTest, OutOfBounds)
-{
-    BitArray b(16);
-    EXPECT_THROW(b.set(16, true), std::range_error);
-}
-
-TEST(BitArraySetTest, FullSet)
-{
-    BitArray b(64);
-    b.set();
-    for (int i = 0; i < b.size(); ++i)
-    {
-        EXPECT_TRUE(b[i]);
-    }
-}
-
-TEST(BitArrayResetTest, BasicResetFunction)
-{
-    BitArray b(8, 0b11111111);
-    b.reset(0);
-    b.reset(1);
-    EXPECT_FALSE(b[0]);
-    EXPECT_FALSE(b[1]);
-    EXPECT_TRUE(b[2]);
-}
-
-TEST(BitArrayAnyTest, AnyWithTrueBits)
-{
-    BitArray b(16, 0b1000);
-    EXPECT_TRUE(b.any());
-}
-
-TEST(BitArrayAnyTest, AnyWithNoBitsSet)
-{
-    BitArray b(16);
-    EXPECT_FALSE(b.any());
-}
-
-TEST(BitArrayAnyTest, LargeBitArray)
-{
-    BitArray b(128);
-    EXPECT_FALSE(b.any());
-    b.set(100, true);
-    EXPECT_TRUE(b.any());
-}
-
-TEST(BitArrayCountTest, CountBitsSet)
-{
-    BitArray b(8, 0b10101010);
-    EXPECT_EQ(b.count(), 4);
-}
-
-TEST(BitArrayCountTest, CountWithZeroBitsSet)
-{
-    BitArray b(16);
-    EXPECT_EQ(b.count(), 0);
-}
-
-TEST(BitArrayCountTest, LargeCount)
-{
-    BitArray b(128);
-    b.set();
-    EXPECT_EQ(b.count(), 128);
-}
-
-TEST(BitArrayResizeTest, IncreaseSize)
-{
-    BitArray b(8, 0b10101010);
-    b.resize(16, true);
-    EXPECT_EQ(b.size(), 16);
-    EXPECT_TRUE(b[15]);
-}
-
-TEST(BitArrayResizeTest, DecreaseSize)
-{
-    BitArray b(16, 0b1111111111111111);
-    b.resize(8);
-    EXPECT_EQ(b.size(), 8);
-    EXPECT_EQ(b.count(), 8);
-}
-
-TEST(BitArrayResizeTest, ResizingToLargerCapacity)
-{
-    BitArray b(32, 0b101010);
-    b.resize(64, true);
-    EXPECT_EQ(b.size(), 64);
-    for (int i = 32; i < 64; ++i)
-    {
-        EXPECT_TRUE(b[i]);
-    }
-}
-
-TEST(BitArrayResizeTest, ResizeToZero)
-{
-    BitArray b(16, 0b1010101010101010);
-    b.resize(0);
-    EXPECT_EQ(b.size(), 0);
-    EXPECT_TRUE(b.empty());
-}
-
-TEST(BitArrayOperatorXOR, XOROperation)
-{
-    BitArray b1(8, 0b10101010);
-    BitArray b2(8, 0b11001100);
-    BitArray result = b1 ^ b2;
-    EXPECT_EQ(result[0], false);
-    EXPECT_EQ(result[1], true);
-    EXPECT_EQ(result[2], false);
-    EXPECT_EQ(result[3], true);
-    EXPECT_EQ(result[4], true);
-    EXPECT_EQ(result[5], false);
-    EXPECT_EQ(result[6], false);
-    EXPECT_EQ(result[7], true);
-}
-
-TEST(BitArrayOperatorXOR, XORDifferentSizes)
-{
-    BitArray b1(8, 0b10101010);
-    BitArray b2(16, 0b11001100);
-    EXPECT_THROW(BitArray result = b1 ^ b2, std::invalid_argument);
-}
-
-TEST(BitArrayOperatorShiftLeft, ShiftLeft)
-{
-    BitArray b(8, 0b1100);
-    BitArray result = b << 2;
-    EXPECT_FALSE(result[0]);
-    EXPECT_FALSE(result[1]);
-    EXPECT_TRUE(result[2]);
-    EXPECT_TRUE(result[3]);
-}
-
-TEST(BitArrayOperatorShiftRight, ShiftRight)
-{
-    BitArray b(8, 0b1100);
-    BitArray result = b >> 2;
-    EXPECT_FALSE(result[7]);
-    EXPECT_FALSE(result[6]);
-    EXPECT_TRUE(result[5]);
-    EXPECT_TRUE(result[4]);
-}
-
-TEST(BitArrayToStringTest, ToStringWithSpaces)
-{
-    BitArray b(8, 0b10101010);
-    EXPECT_EQ(b.to_string(), "10101010");
-}
-
-TEST(BitArrayToStringTest, LargeToString)
-{
-    BitArray b(16, 0b1111000011110000);
-    EXPECT_EQ(b.to_string(), "1111000011110000");
-}
-
-TEST(BitArrayEmptyTest, CheckIfEmpty)
+TEST(ConstructorTest, ZeroInitialization)
 {
     BitArray b;
+    EXPECT_EQ(b.size(), 0);
     EXPECT_TRUE(b.empty());
 }
 
-TEST(BitArrayPushBackTest, PushBackOneBit)
+TEST(FirstMethodsTest, Testing)
 {
-    BitArray b(8, 0b10101010);
-    b.push_back(true);
-    EXPECT_TRUE(b[8]);
+    BitArray a(9, 0xA500000000000000); // 0b101001010
+    BitArray b(5, 0xA800000000000000); // 0b10101
+
+    a.swap(b);
+
     EXPECT_EQ(b.size(), 9);
+    EXPECT_EQ(a.size(), 5);
+
+    EXPECT_TRUE(a[0]);
+    EXPECT_EQ(a[1], 0);
+    EXPECT_EQ(a[2], 1);
+
+    EXPECT_TRUE(b[0]);
+    EXPECT_EQ(b[4], 0);
+    EXPECT_EQ(b[2], 1);
+
+    BitArray c;
+    c = a;
+
+    EXPECT_TRUE(c[0]);
+    EXPECT_EQ(c[1], 0);
+    EXPECT_EQ(c[2], 1);
+
+    a.resize(15, true);
+    EXPECT_EQ(a.size(), 15);
+
+    EXPECT_EQ(a[0], 1);
+    EXPECT_EQ(a[4], 1); // a = 0b101011111111
+
+    EXPECT_EQ(a[5], 1);
+    EXPECT_EQ(a[14], 1);
+
+    try
+    {
+        EXPECT_EQ(a[15], 1);
+    }
+    catch (const std::range_error &e)
+    {
+        std::cerr << e.what();
+    }
+
+    a.clear();
+    EXPECT_EQ(a.empty(), true);
+
+    try
+    {
+        EXPECT_EQ(a[70], 0);
+    }
+    catch (const std::range_error &e)
+    {
+        std::cerr << e.what();
+    }
+
+    b.push_back(true); // 0b1010010101
+    EXPECT_EQ(b[9], 1);
+    b.push_back(false); // 0b10100101010
+    EXPECT_EQ(b[10], 0);
 }
 
-TEST(BitArrayPushBackTest, PushBackMultipleBits)
+TEST(OperatorsTest, BitArrayOperators)
 {
-    BitArray b(4, 0b1010);
-    b.push_back(false);
-    b.push_back(true);
-    EXPECT_EQ(b.size(), 6);
-    EXPECT_FALSE(b[4]);
-    EXPECT_TRUE(b[5]);
+    BitArray a(5, 0xA800000000000000); // 0b10101
+    BitArray b(5, 0x7800000000000000); // 0b01111
+
+    std::cout << "-------------------------------" << std::endl;
+    std::cout << a.to_string() << std::endl;
+    std::cout << b.to_string() << std::endl;
+    std::cout << "-------------------------------" << std::endl;
+
+    EXPECT_EQ((a & b).to_string(), "00101");
+    EXPECT_EQ((a | b).to_string(), "11111");
+    EXPECT_EQ((a ^ b).to_string(), "11010");
+
+    BitArray c(6, 0x7800000000000000); // 0b011110
+
+    try
+    {
+        a & c;
+    }
+    catch (const std::invalid_argument &e)
+    {
+        std::cerr << e.what();
+    }
+
+    a >>= 3;
+    b <<= 3;
+
+    EXPECT_EQ(a.to_string(), "00010");
+    EXPECT_EQ(b.to_string(), "11000");
+
+    BitArray d(70, 0xA800000000000000); // 0b10101..0
+
+    std::cout << "-------------------------------" << std::endl;
+    std::cout << d.to_string() << std::endl;
+    std::cout << "-------------------------------" << std::endl;
+
+    EXPECT_EQ((d >> 64).to_string(), "0000000000000000000000000000000000000000000000000000000000000000101010");
+
+    d = ~d;
+
+    EXPECT_EQ(d.to_string(), "0101011111111111111111111111111111111111111111111111111111111111111111");
 }
 
-TEST(BitArrayPushBackTest, PushBackBeyondMaxSize)
+TEST(SecondMethodsTest, Testing)
 {
-    BitArray b(64, 0b11111111);
-    EXPECT_THROW(b.push_back(true), std::overflow_error);
-}
+    BitArray a(9, 0xA500000000000000); // 0b101001010
+    BitArray b(5, 0xA800000000000000); // 0b10101
 
-TEST(BitArrayResizeTest, ResizeToLargeValue)
-{
-    BitArray b(64, 0b10101010);
-    EXPECT_NO_THROW(b.resize(1024));
-    EXPECT_EQ(b.size(), 1024);
-}
+    a.set(0, false);
+    EXPECT_EQ(a.to_string(), "001001010");
+    a.set();
+    EXPECT_EQ(a.to_string(), "111111111");
+    a.reset(2);
+    EXPECT_EQ(a.to_string(), "110111111");
+    a.reset();
+    EXPECT_EQ(a.to_string(), "000000000");
 
-TEST(BitArrayConstructorTest, MaxSizeConstructor)
-{
-    size_t max_bits = sizeof(unsigned long) * 8;
-    BitArray b(max_bits);
-    EXPECT_EQ(b.size(), max_bits);
-}
+    EXPECT_EQ(b.any(), true);
+    EXPECT_EQ(a.none(), true);
 
-TEST(BitArrayConstructorTest, TooLargeConstructor)
-{
-    size_t max_bits = SIZE_MAX / 2;
-    EXPECT_THROW(BitArray b(max_bits), std::bad_alloc);
+    EXPECT_EQ(b.count(), 3);
+
+    EXPECT_EQ(b.size(), 5);
 }

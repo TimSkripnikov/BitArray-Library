@@ -14,7 +14,7 @@ BitArray::BitArray(int num_bits, unsigned long value)
         throw std::invalid_argument("Number of bits must be positive!\n");
     }
 
-    value <<= ozero - num_bits;
+    // value <<= ozero - num_bits;
     this->bit_count = num_bits;
 
     int length_of_array = count_of_blocks(num_bits);
@@ -91,6 +91,7 @@ void BitArray::resize(int num_bits, bool value)
     }
 
     int new_block_count = count_of_blocks(num_bits);
+    // std::cout << new_block_count << std::endl;
 
     if (new_block_count != current_count_of_blocks)
     {
@@ -117,9 +118,19 @@ void BitArray::resize(int num_bits, bool value)
         delete[] data;
         this->data = new_data;
         this->current_count_of_blocks = new_block_count;
+        this->bit_count = num_bits;
     }
 
-    this->bit_count = num_bits;
+    else
+    {
+        int tmp = this->bit_count;
+        this->bit_count = num_bits;
+
+        for (int i = tmp; i < num_bits; ++i)
+        {
+            this->set(i, value);
+        }
+    }
 }
 
 BitArray &BitArray::set(int index, bool value)
@@ -396,15 +407,12 @@ bool BitArray::empty() const
 std::string BitArray::to_string() const
 {
     std::string result;
-    int shift = ozero - 1;
 
-    for (int i = 0; i < bit_count; ++i)
+    for (int i = 0; i < this->bit_count; ++i)
     {
 
-        int block_index = i / ozero;
-        int bit_index = i % ozero;
+        bool bit = (*this)[i];
 
-        bool bit = (data[block_index] >> (shift - bit_index)) & 1UL;
         if (bit)
         {
             result += '1';
