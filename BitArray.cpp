@@ -11,7 +11,7 @@ BitArray::BitArray(int num_bits, unsigned long value)
 {
     if (num_bits <= 0)
     {
-        throw std::invalid_argument("Number of bits must be positive!\n");
+        throw std::invalid_argument("Number of bits must be positive !\n");
     }
 
     this->bit_count = num_bits;

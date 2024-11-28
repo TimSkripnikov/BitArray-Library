@@ -9,7 +9,7 @@ typedef unsigned long unlong;
 
 /**
  * Class BitArray
- * Represents a dynamic array of bits with various bitwise operations.
+ * Represents a dynamic array of bits with various bitwise  operations.
  */
 class BitArray
 {

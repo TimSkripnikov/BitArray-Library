@@ -22,7 +22,7 @@ TEST(BitArrayConstructorTest, ValidInitialization)
     }
     catch (const std::range_error &e)
     {
-        std::cerr << "Exception caught: " << e.what() << std::endl;
+        std::cerr << "Exception  caught: " << e.what() << std::endl;
     }
 
     BitArray c(a);
