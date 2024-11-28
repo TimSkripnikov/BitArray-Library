@@ -14,7 +14,6 @@ BitArray::BitArray(int num_bits, unsigned long value)
         throw std::invalid_argument("Number of bits must be positive!\n");
     }
 
-    // value <<= ozero - num_bits;
     this->bit_count = num_bits;
 
     int length_of_array = count_of_blocks(num_bits);
