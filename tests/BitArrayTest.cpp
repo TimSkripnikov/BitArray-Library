@@ -1,10 +1,13 @@
 #include "BitArray.hpp"
 #include <gtest/gtest.h>
 
+// Что нужно было сделать: конструкции try убрать; swap сам с собой; оператор присваивания сам с собой - or, and, xor. ; кратно 64 и возле.
+
 TEST(BitArrayConstructorTest, ValidInitialization)
 {
     BitArray a(70, ALL_ONE);
-    BitArray b(5, 0xAC00000000000000); // 101011...
+    BitArray b(5, 0xAC00000000000000);
+    // 1010110000000000000000000000000000000000000000000000000000000000
 
     EXPECT_EQ(a.size(), 70);
     EXPECT_EQ(b.size(), 5);
@@ -16,14 +19,7 @@ TEST(BitArrayConstructorTest, ValidInitialization)
     EXPECT_FALSE(b[1]);
     EXPECT_TRUE(b[0]);
 
-    try
-    {
-        EXPECT_EQ(a[70], 0);
-    }
-    catch (const std::range_error &e)
-    {
-        std::cerr << "Exception  caught: " << e.what() << std::endl;
-    }
+    EXPECT_THROW(a[70], std::range_error);
 
     BitArray c(a);
     EXPECT_EQ(c.size(), 70);
@@ -42,156 +38,193 @@ TEST(BitArrayConstructorTest, DefaultConstructor)
     EXPECT_TRUE(b.empty());
 }
 
+TEST(BitArrayConstructorTest, ZeroInitialization)
+{
+    BitArray b;
+    EXPECT_EQ(b.size(), 0);
+    EXPECT_TRUE(b.empty());
+}
+
 TEST(BitArrayMethodsTest, Swap)
 {
     BitArray a(9, 0xA500000000000000); // 0b101001010
     BitArray b(5, 0xA800000000000000); // 0b10101
 
-    std::cout << "Before swap:" << std::endl;
-    std::cout << "a: " << a.to_string() << std::endl;
-    std::cout << "b: " << b.to_string() << std::endl;
-
     a.swap(b);
-
-    std::cout << "After swap:" << std::endl;
-    std::cout << "a: " << a.to_string() << std::endl;
-    std::cout << "b: " << b.to_string() << std::endl;
 
     EXPECT_EQ(b.size(), 9);
     EXPECT_EQ(a.size(), 5);
+
+    EXPECT_EQ(b.size(), 9);
+    EXPECT_EQ(a.size(), 5);
+
+    EXPECT_TRUE(a[0]);
+    EXPECT_EQ(a[1], 0);
+    EXPECT_EQ(a[2], 1);
+
+    EXPECT_TRUE(b[0]);
+    EXPECT_EQ(b[4], 0);
+    EXPECT_EQ(b[2], 1);
+
+    a.swap(a);
+    EXPECT_EQ(a.to_string(), "10101");
+}
+
+TEST(BitArrayMethodsTest, AssignmentOperator)
+{
+    BitArray a(9, 0xA500000000000000); // 0b101001010
+    BitArray c;
+    c = a;
+
+    EXPECT_TRUE(c[0]);
+    EXPECT_EQ(c[1], 0);
+    EXPECT_EQ(c[2], 1);
+
+    c = c;
+    EXPECT_TRUE(c[0]);
+    EXPECT_EQ(c[1], 0);
+    EXPECT_EQ(c[2], 1);
 }
 
 TEST(BitArrayMethodsTest, Resize)
 {
-    BitArray a(5, 0xA800000000000000); // 0b10101
-    std::cout << "Before resize: " << a.to_string() << std::endl;
-
+    BitArray a(9, 0xA500000000000000); // 0b101001010
+    EXPECT_EQ(a.size(), 9);
     a.resize(15, true);
-    std::cout << "After resize: " << a.to_string() << std::endl;
-
     EXPECT_EQ(a.size(), 15);
+
+    EXPECT_EQ(a[0], 1); // a = 101001010111111
+    EXPECT_EQ(a[4], 0);
+
+    EXPECT_EQ(a[5], 1);
     EXPECT_EQ(a[14], 1);
-}
 
-TEST(BitArrayMethodsTest, PushBack)
-{
-    BitArray b(5, 0xA800000000000000); // 0b10101
+    EXPECT_THROW(a[15], std::range_error);
 
-    b.push_back(true); // 0b101011
-    std::cout << "After push_back(true): " << b.to_string() << std::endl;
-    EXPECT_EQ(b[5], 1);
-
-    b.push_back(false); // 0b1010110
-    std::cout << "After push_back(false): " << b.to_string() << std::endl;
-    EXPECT_EQ(b[6], 0);
+    a.resize(64, false);
+    EXPECT_EQ(a.to_string(), "1010010101111110000000000000000000000000000000000000000000000000");
 }
 
 TEST(BitArrayMethodsTest, Clear)
 {
-    BitArray a(10, 0xFFFF000000000000);
-    std::cout << "Before clear: " << a.to_string() << std::endl;
+    BitArray a(9, 0xA500000000000000); // 0b101001010
+    EXPECT_EQ(a.size(), 9);
+    EXPECT_EQ(a.empty(), false);
 
     a.clear();
-    std::cout << "After clear: " << a.to_string() << std::endl;
+    EXPECT_EQ(a.empty(), true);
 
-    EXPECT_TRUE(a.empty());
+    EXPECT_THROW(a[2], std::range_error);
 }
 
-TEST(BitArrayOperatorsTest, ANDOperator)
+TEST(BitArrayMethodsTest, Push_back)
+{
+    BitArray a(9, 0xA500000000000000); // 0b101001010
+    a.push_back(true);                 // 0b1010010101
+    EXPECT_EQ(a[9], 1);
+    a.push_back(false); // 0b10100101010
+    EXPECT_EQ(a[10], 0);
+}
+
+TEST(BitArrayMethodsTest, Set)
+{
+    BitArray a(9, 0xA500000000000000); // 0b101001010
+
+    a.set(0, false);
+    EXPECT_EQ(a.to_string(), "001001010");
+    a.set();
+    EXPECT_EQ(a.to_string(), "111111111");
+    EXPECT_THROW(a[10], std::range_error);
+}
+
+TEST(BitArrayMethodsTest, Reset)
+{
+    BitArray a(9, 0xA500000000000000); // 0b101001010
+    a.reset(2);
+    EXPECT_EQ(a.to_string(), "100001010");
+    a.reset();
+    EXPECT_EQ(a.to_string(), "000000000");
+}
+
+TEST(BitArrayMethodsTest, Any)
+{
+    BitArray a(9, 0xA500000000000000); // 0b101001010
+    BitArray b(5, 0xA800000000000000); // 0b10101
+    EXPECT_EQ(a.any(), true);
+    EXPECT_EQ(b.any(), true);
+}
+
+TEST(BitArrayMethodsTest, None)
+{
+    BitArray a(9, 0x0);
+    EXPECT_EQ(a.none(), true);
+}
+
+TEST(BitArrayMethodsTest, Count)
+{
+    BitArray b(5, 0xA800000000000000); // 0b10101
+
+    EXPECT_EQ(b.count(), 3);
+}
+
+TEST(BitArrayMethodsTest, Size)
+{
+    BitArray b(5, 0xA800000000000000); // 0b10101
+    EXPECT_EQ(b.size(), 5);
+}
+
+TEST(BitArrayOperatorsTest, AND_Operator)
 {
     BitArray a(5, 0xA800000000000000); // 0b10101
     BitArray b(5, 0x7800000000000000); // 0b01111
+    EXPECT_EQ((a & b).to_string(), "00101");
+    EXPECT_EQ((a & a).to_string(), "10101");
 
-    BitArray result = a & b;
-    std::cout << "a & b: " << result.to_string() << std::endl;
-
-    EXPECT_EQ(result.to_string(), "00101");
+    BitArray c(6, 0x7800000000000000); // 0b011110
+    EXPECT_THROW((a & c), std::invalid_argument);
 }
 
-TEST(BitArrayOperatorsTest, OROperator)
+TEST(BitArrayOperatorsTest, OR_Operator)
 {
     BitArray a(5, 0xA800000000000000); // 0b10101
     BitArray b(5, 0x7800000000000000); // 0b01111
+    EXPECT_EQ((a | b).to_string(), "11111");
+    EXPECT_EQ((a | a).to_string(), "10101");
 
-    BitArray result = a | b;
-    std::cout << "a | b: " << result.to_string() << std::endl;
-
-    EXPECT_EQ(result.to_string(), "11111");
+    BitArray c(6, 0x7800000000000000); // 0b011110
+    EXPECT_THROW((a | c), std::invalid_argument);
 }
 
-TEST(BitArrayOperatorsTest, XOROperator)
+TEST(BitArrayOperatorsTest, XOR_Operator)
 {
     BitArray a(5, 0xA800000000000000); // 0b10101
     BitArray b(5, 0x7800000000000000); // 0b01111
+    EXPECT_EQ((a ^ b).to_string(), "11010");
+    EXPECT_EQ((a ^ a).to_string(), "00000");
 
-    BitArray result = a ^ b;
-    std::cout << "a ^ b: " << result.to_string() << std::endl;
-
-    EXPECT_EQ(result.to_string(), "11010");
-}
-
-TEST(BitArrayOperatorsTest, NOTOperator)
-{
-    BitArray a(5, 0xA800000000000000); // 0b10101
-
-    BitArray result = ~a;
-    std::cout << "~a: " << result.to_string() << std::endl;
-
-    EXPECT_EQ(result.to_string(), "01010");
-}
-
-TEST(BitArrayOperatorsTest, RightShiftOperator)
-{
-    BitArray a(5, 0xA800000000000000); // 0b10101
-
-    a >>= 3;
-    std::cout << "a >> 3: " << a.to_string() << std::endl;
-
-    EXPECT_EQ(a.to_string(), "00010");
+    BitArray c(6, 0x7800000000000000); // 0b011110
+    EXPECT_THROW((a ^ c), std::invalid_argument);
 }
 
 TEST(BitArrayOperatorsTest, LeftShiftOperator)
 {
     BitArray b(5, 0x7800000000000000); // 0b01111
-
     b <<= 3;
-    std::cout << "b << 3: " << b.to_string() << std::endl;
-
     EXPECT_EQ(b.to_string(), "11000");
 }
 
-TEST(BitArrayOperatorsTest, InvalidSizeForLogicalOperators)
+TEST(BitArrayOperatorsTest, RightShiftOperator)
 {
     BitArray a(5, 0xA800000000000000); // 0b10101
-    BitArray c(6, 0x7800000000000000); // 0b011110
+    a >>= 3;
+    EXPECT_EQ(a.to_string(), "00010");
 
-    try
-    {
-        BitArray result = a & c;
-    }
-    catch (const std::invalid_argument &e)
-    {
-        std::cerr << "Exception caught for mismatched sizes: " << e.what() << std::endl;
-    }
+    BitArray d(70, 0xA800000000000000); // 0b10101..0
+    EXPECT_EQ((d >> 64).to_string(), "0000000000000000000000000000000000000000000000000000000000000000101010");
 }
 
-TEST(BitArrayMethodsTest, SetAndReset)
+TEST(BitArrayOperatorsTest, NOT_Operator)
 {
-    BitArray a(9, 0xA500000000000000); // 0b101001010
-
-    a.set(0, false);
-    std::cout << "After set(0, false): " << a.to_string() << std::endl;
-    EXPECT_EQ(a.to_string(), "001001010");
-
-    a.set();
-    std::cout << "After set(): " << a.to_string() << std::endl;
-    EXPECT_EQ(a.to_string(), "111111111");
-
-    a.reset(2);
-    std::cout << "After reset(2): " << a.to_string() << std::endl;
-    EXPECT_EQ(a.to_string(), "110111111");
-
-    a.reset();
-    std::cout << "After reset(): " << a.to_string() << std::endl;
-    EXPECT_EQ(a.to_string(), "000000000");
+    BitArray a(5, 0xA800000000000000); // 0b10101
+    EXPECT_EQ((~a).to_string(), "01010");
 }
