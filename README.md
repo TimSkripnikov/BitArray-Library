@@ -9,7 +9,7 @@ This project was created as an assignment for the NSU course ‘Object-Oriented 
 
 To build and execute the project, follow these steps:
 
-1. **Clone the repository** :
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/TimSkripnikov/BitArray-Library.git
    cd BitArray-Library
