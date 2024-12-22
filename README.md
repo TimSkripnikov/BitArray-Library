@@ -2,21 +2,22 @@
 
 The **BitArray** library is a C++ implementation of a dynamic array of bits, providing various bitwise operations, resizing, and other utilities for managing and manipulating bits efficiently.
 
-This project was created as an assignment for the university course ‘Object-Oriented Programming in C++’.
+This project was created as an assignment for the NSU course ‘Object-Oriented Programming in C++’.
 
 
-## Building and Running
+## 🛠️ Building and Running
 
 To build and execute the project, follow these steps:
 
 1. **Clone the repository** (if not already done):
    ```bash
-   git clone <repository_url>
-   cd <repository_directory>
+   git clone <https://github.com/TimSkripnikov/BitArray-Library.git>
+   cd BitArray-Library
    ```
 
 2. **Generate build files**:
    ```bash
+   mkdir build
    cmake -S . -B build
    ```
 
@@ -32,7 +33,7 @@ To build and execute the project, follow these steps:
 
 
 
-## Running Tests
+## 🚀 Running Tests
 
 The project includes unit tests to verify the functionality of the `BitArray` class. The tests are compiled and executed as part of the build process using the command in step 4 above. Upon execution, you will see the results of the test cases in the terminal.
 
