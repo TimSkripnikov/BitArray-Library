@@ -2,7 +2,7 @@
 
 The **BitArray** library is a C++ implementation of a dynamic array of bits, providing various bitwise operations, resizing, and other utilities for managing and manipulating bits efficiently.
 
-This project was created as an assignment for the NSU course ‘Object-Oriented Programming in C++’.
+This project demonstrates how to implement a memory-efficient, low-level data structure for managing bits in C++. It serves as a practical exercise in custom container design, bitwise operations, and performance-oriented programming.
 
 
 ## 🛠️ Building and Running
